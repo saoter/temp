@@ -14,7 +14,28 @@ option.add_experimental_option("detach", True)
 DRIVER_PATH = 'C:\chromedriver.exe'
 driver = webdriver.Chrome()
 driver.get('https://www.proff.dk/')
-WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="qc-cmp2-ui"]/div[2]/div/button[3]'))).click()
+
+
+
+# WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="qc-cmp2-ui"]/div[2]/div/button[3]'))).click()
+max_retries = 5
+for i in range(max_retries):
+    try:
+        # Wait until the element is clickable
+        element = WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="qc-cmp2-ui"]/div[2]/div/button[3]'))
+        )
+        # Click the element
+        element.click()
+        break  # Exit the loop if successful
+    except StaleElementReferenceException:
+        # Print a message and retry
+        print(f"StaleElementReferenceException caught. Retrying {i+1}/{max_retries}...")
+        if i == max_retries - 1:
+            print("Max retries reached. Exiting.")
+            raise  # Re-raise the exception if max retries reached
+
+
 rev_data = ['15827084', '38358812', '31889480']
 
 time.sleep(2)
@@ -81,7 +102,8 @@ for i in rev_data:
         t = t.rename(columns=lambda x: x[0 : 13])
         t['Cvr'] = i
         
-        df = df.append(t)
+        df = pd.concat([df, t], ignore_index=True)
+        df.to_csv('fin_data.csv', index=False, encoding='utf-8-sig')
     except:
         pass
         driver.get('https://www.proff.dk/')
@@ -145,11 +167,9 @@ for i in rev_data:
         t = t.rename(columns=lambda x: x[0 : 13])
         t['Cvr'] = i
         
-        df = df.append(t)
+        #df = df.append(t)
+        df = pd.concat([df, t], ignore_index=True)
+        df.to_csv('fin_data.csv', index=False, encoding='utf-8-sig')      
+
 
 driver.quit()  
-df.to_csv('fin_data.csv', index=False, encoding='utf-8-sig')      
-
-
-
-

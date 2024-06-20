@@ -70,7 +70,10 @@ for i in rev_data:
         # Reorder columns to have 'Cvr' as the first column
         dft = dft[['Cvr', 'role', 'name']]
         print(dft)
-        df = df.append(dft)
+        df = pd.concat([df, dft], ignore_index=True)
+        df = df[df['role'].str.strip().astype(bool)]
+        df.to_csv('roles_data.csv', index=False, encoding='utf-8-sig')
+
     except:
         driver.get('https://www.proff.dk/')
         WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, '//input[@placeholder="Søg efter virksomheder eller personer"]'))).send_keys(i)
@@ -103,10 +106,13 @@ for i in rev_data:
         # Reorder columns to have 'Cvr' as the first column
         dft = dft[['Cvr', 'role', 'name']]
 
-        df = df.append(dft)
+        #df = df.append(dft)
+        df = pd.concat([df, dft], ignore_index=True)
+        df = df[df['role'].str.strip().astype(bool)]
+        df.to_csv('roles_data.csv', index=False, encoding='utf-8-sig')
+
         
 driver.quit()  
 
-df = df[df['role'].str.strip().astype(bool)]
-df.to_csv('roles_data.csv', index=False, encoding='utf-8-sig')      
+      
 
